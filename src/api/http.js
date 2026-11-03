@@ -41,7 +41,9 @@ export async function request(url, { method = "GET", body, auth = true } = {}) {
         try {
             const data = await response.json();
             message = data.message || message;
-        } catch {}
+        } catch {
+            // La respuesta de error no trae JSON: se conserva el mensaje por defecto.
+        }
         throw new Error(message);
     }
 
