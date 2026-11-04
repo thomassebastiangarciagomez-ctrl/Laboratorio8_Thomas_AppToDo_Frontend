@@ -1,0 +1,68 @@
+name: CI - Frontend Calidad y Contenedor
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-quality:
+    name: React - lint, pruebas, cobertura y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Instalar dependencias fijadas en lockfile
+        run: npm ci
+      - name: Análisis estático ESLint
+        run: npm run lint
+      - name: Pruebas y cobertura
+        run: npm run test:coverage
+      - name: Build de React
+        run: npm run build
+      - name: Guardar reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage/
+          if-no-files-found: warn
+
+  publish-frontend-image:
+    name: Publicar imagen Frontend GHCR (solo main)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [frontend-quality]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Autenticarse en GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Identificadores de imagen
+        id: meta
+        shell: bash
+        run: |
+          echo "base=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Publicar imagen React / Nginx
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.base }}-web:${{ steps.meta.outputs.tag }}

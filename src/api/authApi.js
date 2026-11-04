@@ -1,6 +1,6 @@
 import { request } from "./http";
 
-const API_URL = "http://localhost:8080/api/v1";
+const API_URL = "/api/v1";
 
 /**
  * POST /auth/login. Devuelve { tokenType, accessToken, expiresIn }.
