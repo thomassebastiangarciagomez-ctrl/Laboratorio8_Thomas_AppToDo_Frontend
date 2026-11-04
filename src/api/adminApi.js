@@ -1,6 +1,6 @@
 import { request } from "./http";
 
-const API_URL = "http://localhost:8080/api/v1/admin";
+const API_URL = "/api/v1/admin";
 
 /**
  * GET /admin/summary. Solo responde 200 con un token de ADMIN; con USER devuelve 403.

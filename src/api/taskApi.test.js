@@ -34,7 +34,7 @@ describe("taskApi con sesión JWT", () => {
         await createTask({ title: "Nueva" });
 
         const [url, options] = fetch.mock.calls[0];
-        expect(url).toBe("http://localhost:8080/api/v1/tasks");
+        expect(url).toBe("/api/v1/tasks");
         expect(options.method).toBe("POST");
         expect(options.headers["Content-Type"]).toBe("application/json");
         expect(options.headers.Authorization).toBe("Bearer tok");

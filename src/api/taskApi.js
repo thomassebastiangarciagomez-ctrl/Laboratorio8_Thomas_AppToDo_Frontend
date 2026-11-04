@@ -1,6 +1,6 @@
 import { request } from "./http";
 
-const API_URL = "http://localhost:8080/api/v1/tasks";
+const API_URL = "/api/v1/tasks";
 
 /**
  * Todas las operaciones son protegidas: el cliente HTTP agrega el token de la sesión en memoria.
